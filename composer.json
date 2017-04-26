@@ -1,9 +1,9 @@
 {
-    "name": "basuke/digdug",
+    "name": "basuke/hpack-php",
     "type": "library",
-    "description": "Dig Dug is a PHP libray that helps you quickly pack and unpack",
-    "keywords": ["binary","parse","pack","unpack"],
-    "homepage": "https://github.com/basuke/DigDug",
+    "description": "HPACK is a PHP libray for HTTP/2 HPACK header compression RFC7541",
+    "keywords": ["http/2","h2","header","compression"],
+    "homepage": "https://github.com/basuke/hpack-php",
     "license": "MIT",
     "authors": [
         {
@@ -17,7 +17,7 @@
     },
     "autoload": {
         "psr-4": {
-            "DigDug\\": "src"
+            "HTTP2\\HPACK\\": "src"
         }
     },
     "require-dev": {
