@@ -10,6 +10,9 @@ final class Binary
     /** @var int */
     private $length = 0;
 
+    /** @var Binary */
+    private $source;
+
     /**
      * @param string $string
      */
@@ -69,6 +72,24 @@ final class Binary
         } else {
             return false;
         }
+    }
+
+    public function skip($count)
+    {
+        $this->read($count);
+    }
+
+    public function begin()
+    {
+        $copy = clone $this;
+        $copy->source = $this;
+        return $copy;
+    }
+
+    public function commit()
+    {
+        $this->source->string = $this->string;
+        $this->source->length = $this->length;
     }
 
     public function isEmpty()

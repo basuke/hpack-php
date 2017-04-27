@@ -6,27 +6,20 @@ use UnitTester;
 
 class AppendixC2Cest
 {
-    public function c21(UnitTester $I)
+    public function test1(UnitTester $I)
     {
-        $I->wantTo('[C.2.1] Literal Header Field with Indexing');
+        $I->wantToTest('[C.2.1] Literal Header Field with Indexing');
 
-        $encoded = Representation::encodeInt(10, 5);
-        $I->assertEquals(B(0b00001010), $encoded);
-    }
+        $headerList = [
+            ['custom-key', 'custom-header']
+        ];
 
-    public function example2(UnitTester $I)
-    {
-        $I->wantTo('[C.1.2] Example 2: Encoding 1337 Using a 5-Bit Prefix');
+        $encoder = new Encoder();
 
-        $encoded = Representation::encodeInt(1337, 5);
-        $I->assertEquals(B(0b00011111, 0b10011010, 0b00001010), $encoded);
-    }
-
-    public function example3(UnitTester $I)
-    {
-        $I->wantTo('[C.1.3] Example 3: Encoding 42 Starting at an Octet Boundary');
-
-        $encoded = Representation::encodeInt(42, 8);
-        $I->assertEquals(B(0b00101010), $encoded);
+        verify($encoder->encode($headerList))
+            ->equals(B(
+                0x40,0x0a,0x63,0x75,0x73,0x74,0x6f,0x6d,0x2d,0x6b,0x65,0x79 ,0x0d,0x63,0x75,0x73,
+                0x74,0x6f,0x6d,0x2d,0x68,0x65,0x61,0x64,0x65,0x72
+            ));
     }
 }

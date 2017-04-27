@@ -31,7 +31,7 @@ class Representation
     {
         assert($prefixBits > 0 && $prefixBits <= 8);
 
-        $stream = clone $binaryStream;
+        $stream = $binaryStream->begin();
 
         $max = (1 << $prefixBits) - 1;
 
@@ -56,7 +56,32 @@ class Representation
             } while ($byte >= 0x80);
         }
 
-        $binaryStream->read($binaryStream->length() - $stream->length());
+        $stream->commit();
         return $value;
+    }
+
+    public static function encodeStr($string)
+    {
+        return
+            static::encodeInt(strlen($string), 7)
+            . $string;
+    }
+
+    public static function decodeStr(Binary $stream)
+    {
+        $workingStream = $stream->begin();
+
+        $length = static::decodeInt($workingStream, 7);
+        if ($length === false) {
+            return false;
+        }
+
+        $str = $workingStream->read($length);
+        if ($str === false) {
+            return false;
+        }
+
+        $workingStream->commit();
+        return $str;
     }
 }

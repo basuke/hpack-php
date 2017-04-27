@@ -4,19 +4,50 @@ namespace HTTP2\HPACK;
 
 class Table
 {
+    /**
+     * @param array $entries
+     * @return static
+     */
+    public static function table(array $entries = [])
+    {
+        return new static($entries);
+    }
+
+    /**
+     * @return Table
+     */
     final public static function staticTable()
     {
-        return new static(static::$staticTableEntry);
+        static $staticTable = null;
+        if (is_null($staticTable)) {
+            $staticTable = static::table(static::$staticTableEntry);
+        }
+        return $staticTable;
     }
 
     /** @var array */
     protected $entries;
 
-    public function __construct(array $entries = [])
+    protected function __construct(array $entries = [])
     {
         $this->entries = $entries;
     }
 
+    /**
+     * current size of table
+     * @return int
+     */
+    public function size()
+    {
+        return count($this->entries);
+    }
+
+    /**
+     * get entry at index (1-based)
+     * @param $index
+     * @return mixed
+     * @throws DecodeException
+     */
     public function get($index)
     {
         if ($index < 1 || $index > count($this->entries)) {
@@ -26,9 +57,23 @@ class Table
         return $this->entries[$index - 1];
     }
 
-    public function count()
+    /**
+     * find entry index (1-based)
+     * @param string $name
+     * @param string|null $value
+     * @return int|false value
+     */
+    public function find($name, $value = null)
     {
-        return count($this->entries);
+        $entry = $this->entry($name, $value);
+        $result = array_search($entry, $this->entries);
+        if ($result !== false) $result += 1;
+        return $result;
+    }
+
+    protected function entry($name, $value = null)
+    {
+        return $value ? [$name, $value] : $name;
     }
 
     /** @var array */

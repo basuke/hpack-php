@@ -34,7 +34,7 @@ $I->expectException(DecodeException::class, function () use ($staticTable) {
 
 // =============================================
 
-$table = new \HTTP2\HPACK\DynamicTable();
+$table = \HTTP2\HPACK\DynamicTable::table();
 
 $I->assertEquals(
     [':status', '200'],
