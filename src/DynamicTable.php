@@ -4,7 +4,8 @@ namespace HTTP2\HPACK;
 
 class DynamicTable extends Table
 {
-    const DEFAULT_MAX_SIZE = 32;
+    const DEFAULT_MAX_SIZE = 1024;
+    const ENTRY_SIZE_OVERHEAD = 32;
 
     /** @var Table */
     private $staticTable;
@@ -15,22 +16,78 @@ class DynamicTable extends Table
     /** @var int */
     private $maxSize;
 
+    /** @var int */
+    private $size;
+
     protected function __construct(array $entries = [])
     {
         parent::__construct($entries);
 
         $this->staticTable = Table::staticTable();
-        $this->staticSize = $this->staticTable->size();
+        $this->staticSize = $this->staticTable->length();
         $this->maxSize = static::DEFAULT_MAX_SIZE;
+        $this->size = $this->calculateTableSize();
     }
 
     /**
-     * get max size of entries
+     * return calculated size of entry
+     * @param string|array
+     */
+    public static function entrySize($entry)
+    {
+        if (is_array($entry)) {
+            assert(count($entry) === 2);
+            $name = $entry[0];
+            $value = $entry[1];
+        } else {
+            $name = $entry;
+            $value = '';
+        }
+
+        return strlen($name) + strlen($value) + static::ENTRY_SIZE_OVERHEAD;
+    }
+
+    /**
+     * get current table size
+     */
+    public function size()
+    {
+        return $this->size;
+    }
+
+    protected function calculateTableSize()
+    {
+        $result = 0;
+        foreach ($this->entries as $entry) {
+            $result += static::entrySize($entry);
+        }
+        return $result;
+    }
+
+    /**
+     * get max size of table
      * @return int
      */
     public function maxSize()
     {
         return $this->maxSize;
+    }
+
+
+    /**
+     * set max size of table
+     * @param int $newMaxSize
+     */
+    public function setMaxSize($newMaxSize)
+    {
+        assert($newMaxSize >= 0);
+
+        while ($this->size > $newMaxSize && $this->entries) {
+            $entry = array_pop($this->entries);
+            $this->size -= static::entrySize($entry);
+        }
+
+        $this->maxSize = $newMaxSize;
     }
 
     /**
@@ -70,6 +127,12 @@ class DynamicTable extends Table
     {
         $entry = $this->entry($name, $value);
         array_unshift($this->entries, $entry);
+        $this->size += static::entrySize($entry);
+
+        $this->setMaxSize($this->maxSize());
+        if ($this->length() === 0) {
+            return false;
+        }
         return $this->staticSize + 1;
     }
 }

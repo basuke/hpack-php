@@ -34,10 +34,10 @@ class Table
     }
 
     /**
-     * current size of table
+     * number of entries in the table
      * @return int
      */
-    public function size()
+    public function length()
     {
         return count($this->entries);
     }

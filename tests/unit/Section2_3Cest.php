@@ -13,7 +13,7 @@ class Section2_3Cest
 
         $table = Table::staticTable();
 
-        verify($table->size())
+        verify($table->length())
             ->equals(61);
 
         verify($table->get(11))
@@ -51,7 +51,7 @@ class Section2_3Cest
 
         $table = DynamicTable::table();
 
-        verify($table->size())
+        verify($table->length())
             ->equals(0);
 
         verify($table->maxSize())
