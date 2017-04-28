@@ -81,7 +81,7 @@ class Representation
     {
         $workingStream = $stream->begin();
 
-        $bits = $workingStream->peek(1) >> 7;
+        $bits = ord($workingStream->peek(1)) >> 7;
         $length = static::decodeInt($workingStream, 7);
         if ($length === false) {
             return false;
@@ -94,6 +94,7 @@ class Representation
 
         $workingStream->commit();
 
+        dump([$bits, $str, Huffman::decode($str)]);
         if ($bits) {
             $str = Huffman::decode($str);
         }

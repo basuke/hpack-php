@@ -29,7 +29,7 @@ for current_bits in bits:
 
     for (code, val, bits) in codes:
         if current_bits == bits:
-            print "            [ 0x%02x, 0x%x ]," % (code, val)
+            print "            0x%x => 0x%02x," % (val, code)
     print "        ],"
 
 print """    ];

@@ -18,6 +18,19 @@ class HuffmanEncodingCest
         verify(Huffman::encode("no-cache"))
             ->equals(B(0xa8,0xeb,0x10,0x64,0x9c,0xbf));
     }
+
+    public function test2(UnitTester $I)
+    {
+        $I->wantToTest("huffman decoding");
+
+        verify(Huffman::decode(B(
+            0xf1,0xe3,0xc2,0xe5,0xf2,0x3a,0x6b,0xa0,
+            0xab,0x90,0xf4,0xff)))
+            ->equals("www.example.com");
+
+        verify(Huffman::decode(B(0xa8,0xeb,0x10,0x64,0x9c,0xbf)))
+            ->equals("no-cache");
+    }
     /*
 H("25a8 49e9 5ba9 7d7f")
 "custom-key"]

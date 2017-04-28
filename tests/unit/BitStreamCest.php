@@ -1,11 +1,12 @@
 <?php
 
 
+use HTTP2\HPACK\Helper\BitReader;
 use HTTP2\HPACK\Helper\BitWriter;
 
 class BitStreamCest
 {
-    public function basicReader(UnitTester $I)
+    public function basicWriter(UnitTester $I)
     {
         $I->wantToTest("basic BitWriter");
 
@@ -31,5 +32,43 @@ class BitStreamCest
             ->write(0x122, 9)
             ->result())
             ->equals(B(0x91, 0b01111111));
+    }
+
+    public function basicReader(UnitTester $I)
+    {
+        $I->wantToTest("basic BitReader");
+
+        verify((new BitReader(B(0b01011101)))
+            ->read(1))
+            ->equals(0);
+
+        verify((new BitReader(B(0b01011101)))
+            ->read(4))
+            ->equals(0b0101);
+
+        verify((new BitReader(B(0b01011101)))
+            ->read(8))
+            ->equals(0b01011101);
+
+        verify((new BitReader(B(0b01011101)))
+            ->read(10))
+            ->false();
+
+        verify((new BitReader(B(0b01011101, 0b10101010)))
+            ->read(10))
+            ->equals(0b0101110110);
+
+        $bs = new BitReader(B(0b01011101));
+
+        verify($bs->read(1))
+            ->equals(0);
+        verify($bs->read(2))
+            ->equals(0b10);
+        verify($bs->read(3))
+            ->equals(0b111);
+        verify($bs->read(3))
+            ->false();
+        verify($bs->read(2))
+            ->equals(1);
     }
 }
