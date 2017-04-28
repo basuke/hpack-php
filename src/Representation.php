@@ -6,16 +6,18 @@ use HTTP2\HPACK\Helper\Binary;
 
 class Representation
 {
-    public static function encodeInt($value, $prefixBits, $currentByte = 0)
+    public static function encodeInt($value, $prefixBits, $bits = 0)
     {
         assert($prefixBits > 0 && $prefixBits <= 8);
 
         $max = (1 << $prefixBits) - 1;
+        $firstByte = ($bits << $prefixBits) & 0xff;
 
         if ($value <= $max) {
+            $value |= $firstByte;
             return pack('C', $value);
         } else {
-            $bytes = [$max];
+            $bytes = [$max | $firstByte];
             $value -= $max;
             while ($value >= 0x80) {
                 $bytes[] = ($value % 0x80) | 0x80;
@@ -60,10 +62,18 @@ class Representation
         return $value;
     }
 
-    public static function encodeStr($string)
+    /**
+     * @param $string
+     * @param bool $huffman (default = false)
+     * @return string
+     */
+    public static function encodeStr($string, $huffman = false)
     {
+        if ($huffman) {
+            $string = Huffman::encode($string);
+        }
         return
-            static::encodeInt(strlen($string), 7)
+            static::encodeInt(strlen($string), 7, $huffman ? 1 : 0)
             . $string;
     }
 
@@ -71,6 +81,7 @@ class Representation
     {
         $workingStream = $stream->begin();
 
+        $bits = $workingStream->peek(1) >> 7;
         $length = static::decodeInt($workingStream, 7);
         if ($length === false) {
             return false;
@@ -82,6 +93,10 @@ class Representation
         }
 
         $workingStream->commit();
+
+        if ($bits) {
+            $str = Huffman::decode($str);
+        }
         return $str;
     }
 }
