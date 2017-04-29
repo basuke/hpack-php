@@ -44,8 +44,9 @@ class Section5_2Cest
             $this->long_str)))
             ->equals($this->long_str);
 
-        verify(Representation::decodeStr(BS(11, "Hello")))
-            ->false();
+        $I->expectException(DecodeException::class, function () {
+            Representation::decodeStr(BS(11, "Hello"));
+        });
     }
 
     public function encodeStringUsingHuffman(UnitTester $I)

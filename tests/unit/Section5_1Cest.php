@@ -29,10 +29,11 @@ class Section5_1Cest
         verify(Representation::decodeInt(BS(0b00011111, 0b10011010, 0b00001010), 5))
             ->equals(1337);
 
-        verify(Representation::decodeInt(BS(0b00011111, 0b10011010), 5))
-            ->equals(false);
-
         verify(Representation::decodeInt(BS(0b00101010), 8))
             ->equals(42);
+
+        $I->expectException(DecodeException::class, function () {
+            Representation::decodeInt(BS(0b00011111, 0b10011010), 5);
+        });
     }
 }
