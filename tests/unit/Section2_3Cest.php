@@ -38,7 +38,7 @@ class Section2_3Cest
             ->equals(8);
 
         verify($table->find(':status'))
-            ->false();
+            ->equals(8);
 
         verify($table->find(':status', '1024'))
             ->false();
@@ -63,6 +63,9 @@ class Section2_3Cest
         verify($table->find('hello', 'world'))
             ->false();
 
+        verify($table->find('hello'))
+            ->false();
+
         verify($table->add('hello', 'world'))
             ->equals(62);
 
@@ -70,7 +73,7 @@ class Section2_3Cest
             ->equals(62);
 
         verify($table->find('hello'))
-            ->false();
+            ->equals(62);
 
         verify($table->get(62))
             ->equals(['hello', 'world']);

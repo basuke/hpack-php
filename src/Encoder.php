@@ -1,13 +1,14 @@
 <?php
 
 namespace HTTP2\HPACK;
+use HTTP2\HPACK\Representation as R;
 
 class Encoder
 {
     /**
      * @var DynamicTable
      */
-    public $table;
+    protected $table;
 
     public function __construct()
     {
@@ -19,19 +20,40 @@ class Encoder
         $result = [];
 
         foreach ($headerList as $headerField) {
-            $result[] = $this->encodeHeaderField(... $headerField);
+            if (count($headerField) == 3) {
+                list($name, $value, $kind) = $headerField;
+            } else {
+                list($name, $value) = $headerField;
+                $kind = null;
+            }
+
+            if ($kind != R::LITERAL_NO_INDEXING_HEADER_FIELD
+                && $kind != R::LITERAL_NEVER_INDEXING_HEADER_FIELD) {
+                $index = $this->table->find($name, $value);
+                $kind = R::LITERAL_INDEXING_HEADER_FIELD;
+            } else {
+                $index = false;
+            }
+
+            if ($index !== false) {
+                $result[] = R::encodeHeaderField(R::INDEXED_HEADER_FIELD, $index);
+            } else {
+                $index = $this->table->find($name);
+                if ($index !== false) {
+                    $headerField = [$index, $value];
+                } else {
+                    $headerField = [$name, $value];
+                }
+
+                $result[] = R::encodeHeaderField($kind, $headerField);
+
+                if ($kind === R::LITERAL_INDEXING_HEADER_FIELD) {
+                    $this->table->add($name, $value);
+                }
+            }
         }
 
         return implode('', $result);
     }
 
-    public function encodeHeaderField($name, $value)
-    {
-        $found = $this->table->find($name, $value);
-        if ($found !== false) {
-
-        }
-
-        return "$found";
-    }
 }

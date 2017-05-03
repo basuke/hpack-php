@@ -68,6 +68,13 @@ class Table
         $entry = $this->entry($name, $value);
         $result = array_search($entry, $this->entries);
         if ($result !== false) $result += 1;
+        if (is_null($value)) {
+            foreach ($this->entries as $index => $entry) {
+                if (is_array($entry) && $entry[0] == $name) {
+                    return $index + 1;
+                }
+            }
+        }
         return $result;
     }
 
