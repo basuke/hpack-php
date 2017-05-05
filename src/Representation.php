@@ -33,11 +33,12 @@ class Representation
 
     /**
      * @param int $kind
-     * @param int|[string] $field
+     * @param int|array $field
+     * @param bool $useHuffmanCoding
      * @return string
-     * @throws EncodeException
+     * @internal param $ int|[string] $field
      */
-    public static function encodeHeaderField($kind, $field)
+    public static function encodeHeaderField($kind, $field, $useHuffmanCoding = false)
     {
         $result = [];
         switch ($kind) {
@@ -48,15 +49,15 @@ class Representation
                 break;
 
             case static::LITERAL_INDEXING_HEADER_FIELD:
-                $result = static::encodeLiteralHeaderField($field, 6, 0x40);
+                $result = static::encodeLiteralHeaderField($field, 6, 0x40, $useHuffmanCoding);
                 break;
 
             case static::LITERAL_NO_INDEXING_HEADER_FIELD:
-                $result = static::encodeLiteralHeaderField($field, 4, 0x00);
+                $result = static::encodeLiteralHeaderField($field, 4, 0x00, $useHuffmanCoding);
                 break;
 
             case static::LITERAL_NEVER_INDEXING_HEADER_FIELD:
-                $result = static::encodeLiteralHeaderField($field, 4, 0x10);
+                $result = static::encodeLiteralHeaderField($field, 4, 0x10, $useHuffmanCoding);
                 break;
 
             case static::TABLE_SIZE_UPDATE:
@@ -72,7 +73,7 @@ class Representation
         return implode('', $result);
     }
 
-    protected static function encodeLiteralHeaderField($field, $prefixBits, $flags)
+    protected static function encodeLiteralHeaderField($field, $prefixBits, $flags, $useHuffmanCoding)
     {
         assert(is_array($field) && count($field) == 2);
 
@@ -83,9 +84,9 @@ class Representation
             $result[] = static::encodeInt($key, $prefixBits, $flags);
         } else {
             $result[] = static::encodeInt(0, $prefixBits, $flags);
-            $result[] = static::encodeStr($key);
+            $result[] = static::encodeStr($key, $useHuffmanCoding);
         }
-        $result[] = static::encodeStr($value);
+        $result[] = static::encodeStr($value, $useHuffmanCoding);
         return $result;
     }
 

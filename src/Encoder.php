@@ -10,6 +10,11 @@ class Encoder
      */
     protected $table;
 
+    /**
+     * @var bool
+     */
+    protected $huffmanCoding;
+
     public function __construct()
     {
         $this->table = DynamicTable::table();
@@ -45,7 +50,8 @@ class Encoder
                     $headerField = [$name, $value];
                 }
 
-                $result[] = R::encodeHeaderField($kind, $headerField);
+                $useHuffmanCoding = $this->huffmanCoding;
+                $result[] = R::encodeHeaderField($kind, $headerField, $useHuffmanCoding);
 
                 if ($kind === R::LITERAL_INDEXING_HEADER_FIELD) {
                     $this->table->add($name, $value);
@@ -56,4 +62,13 @@ class Encoder
         return implode('', $result);
     }
 
+    public function setHuffmanCoding($flag)
+    {
+        $this->huffmanCoding = $flag;
+    }
+
+    public function setTableMaxSize($size)
+    {
+        $this->table->setMaxSize($size);
+    }
 }

@@ -71,4 +71,9 @@ class Decoder
 
         return $field;
     }
+
+    public function setTableMaxSize($size)
+    {
+        $this->table->setMaxSize($size);
+    }
 }

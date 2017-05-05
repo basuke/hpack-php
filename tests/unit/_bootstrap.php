@@ -15,6 +15,15 @@ namespace
         return implode('', $data);
     }
 
+    function BH(... $args)
+    {
+        return implode('', array_map(function ($str) {
+            $str = preg_replace('/[|].*$/', '', $str);
+            $str = preg_replace('/\\s+/', '', $str);
+            return hex2bin($str);
+        }, $args));
+    }
+
     function BS(... $args)
     {
         return new Binary(B(... $args));
